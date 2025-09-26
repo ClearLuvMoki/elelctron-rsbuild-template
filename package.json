@@ -1,0 +1,16 @@
+{
+    "name": "electron-rsbuild-template",
+    "version": "1.0.0",
+    "type": "module",
+    "bin": {
+        "electron-rsbuild-template": "index.js"
+    },
+    "author": "Moki <2893096286@qq.com> (http://moonquakes.online)",
+    "files": [
+        "index.js",
+        "template"
+    ],
+    "dependencies": {
+        "inquirer": "^12.9.6"
+    }
+}
