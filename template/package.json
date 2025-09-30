@@ -1,18 +1,16 @@
 {
-  "name": "poetry-desktop",
+  "name": "electron-rsbuild-template",
   "version": "1.0.0",
   "main": "./release/dist/main/index.js",
   "scripts": {
     "dev": "npm run dev:render",
     "dev:render": "rsbuild dev --config ./builder/render/rsbuild.dev.ts",
     "dev:main": "nodemon",
-    "rebuild:main": "npm run build:main && electron ./release/dist/main/index.js",
+    "electron": "electron ./release/dist/main/index.js",
     "build:main": "rsbuild build --config ./builder/main/rsbuild.build.ts",
     "build:render": "rsbuild build --config ./builder/render/rsbuild.build.ts",
     "build": "npm run build:main &&  npm run build:render && electron-builder -c electron-builder.js ",
-    "postinstall": "electron-builder install-app-deps && npx simple-git-hooks",
-    "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "package": "electron-builder build --publish never ",
+    "postinstall": "electron-builder install-app-deps",
     "lint": "pnpm biome check --write ./src"
   },
   "devDependencies": {
@@ -21,8 +19,9 @@
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "dayjs": "^1.11.18",
-    "lucide-react": "^0.544.0",
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12",
+    "nodemon": "^3.1.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   }

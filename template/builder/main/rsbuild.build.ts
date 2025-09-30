@@ -1,6 +1,6 @@
 import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core'
 import { join } from 'path'
-import { releaseMainPath, rootPath, srcMainPath } from '../common/paths'
+import { releaseMainPath, srcMainPath } from '../common/paths'
 import CommonConfig from '../common/rsbuild.common'
 
 const Config = defineConfig({
@@ -21,13 +21,6 @@ const Config = defineConfig({
             root: join(releaseMainPath),
         },
         cleanDistPath: true,
-        copy: [
-            {
-                from: join(rootPath, './node_modules/better-sqlite3/build/Release/better_sqlite3.node'),
-                to: join(rootPath, './release/dist/main'),
-                force: true,
-            },
-        ],
     },
 })
 

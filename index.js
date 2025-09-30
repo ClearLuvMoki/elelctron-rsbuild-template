@@ -1,25 +1,52 @@
 #!/usr/bin/env node
 import inquirer from "inquirer";
-import fs from "fs";
+import fs, { promises as fsp } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
+import ora from 'ora';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+async function runCommandWithSpinner(command, message) {
+  const spinner = ora(message)
+  spinner.start();
+  
+  try {
+    execSync(command, { stdio: 'pipe' });
+    spinner.succeed('Dependencies installed successfully!');
+  } catch (error) {
+    spinner.fail('Failed to install dependencies');
+    throw error;
+  }
+}
+
+async function createProjectFiles(targetDir, templateDir) {
+  const spinner = ora("Creating project files...").start();
+
+  try {
+    await fsp.mkdir(targetDir);
+    await fsp.cp(templateDir, targetDir, { recursive: true });
+    spinner.succeed("Project files created successfully!");
+  } catch (err) {
+    spinner.fail("Failed to create project files!");
+    throw err;
+  }
+}
+
+
 async function main() {
-  // 1. 交互提问
   const answers = await inquirer.prompt([
     {
       type: "input",
       name: "projectName",
-      message: "请输入项目名称:",
+      message: "Please input project name:",
       default: "electron-app"
     },
     {
       type: "list",
       name: "packageManager",
-      message: "请选择包管理器:",
+      message: "Please select package manager:",
       choices: ["pnpm", "yarn", "npm"],
       default: "pnpm"
     }
@@ -29,29 +56,37 @@ async function main() {
   const targetDir = path.resolve(process.cwd(), projectName);
 
   if (fs.existsSync(targetDir)) {
-    console.error(`❌ 目录 ${projectName} 已存在！`);
+    console.error(`❌ Project ${projectName} already exists!`);
     process.exit(1);
   }
 
-  // 2. 拷贝模板
-  fs.mkdirSync(targetDir);
   const templateDir = path.join(__dirname, "template");
-  fs.cpSync(templateDir, targetDir, { recursive: true });
+  await createProjectFiles(targetDir, templateDir);
 
-  // 3. 检查包管理器命令是否存在
   try {
     execSync(`${answers.packageManager} --version`, { stdio: "ignore" });
   } catch (err) {
-    console.error(`❌ 未找到命令: ${answers.packageManager}`);
-    console.error(`👉 请先安装 ${answers.packageManager}`);
+    console.error(`❌ Command not found: ${answers.packageManager}`); 
+    console.error(`👉 Please install ${answers.packageManager} first.`);
     process.exit(1);
   }
 
-  // 4. 提示
-  console.log(`\n✅ 项目已创建在 ${projectName}`);
-  console.log("👉 下一步：");
+  try {
+    process.chdir(targetDir);
+    await runCommandWithSpinner(
+      `${answers.packageManager} install`,
+      `Installing dependencies with ${answers.packageManager}...`
+    );
+  } catch (error) {
+    console.error('Error:', error.message);
+    console.log(`👉 You can manually install dependencies later by running:`);
+    console.log(`   cd ${projectName}`);
+    console.log(`   ${answers.packageManager} install\n`);
+  }
+
+  console.log(`\n✅ Project ${projectName} created successfully!`);
+  console.log("👉 Next steps:");
   console.log(`   cd ${projectName}`);
-  console.log(`   ${answers.packageManager} install`);
   console.log(`   ${answers.packageManager} run dev\n`);
 }
 

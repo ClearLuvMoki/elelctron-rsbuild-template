@@ -1,16 +1,19 @@
 {
     "name": "electron-rsbuild-template",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "type": "module",
     "bin": {
         "electron-rsbuild-template": "index.js"
     },
-    "author": "Moki <2893096286@qq.com> (http://moonquakes.online)",
+    "author": "Moki <2893096286@qq.com> (https://moonquakes.online)",
     "files": [
         "index.js",
+        ".gitignore",
         "template"
     ],
-    "dependencies": {
-        "inquirer": "^12.9.6"
+    "devDependencies": {
+        "inquirer": "^12.9.6",
+        "dotenv": "^17.2.3",
+        "ora": "^9.0.0"
     }
 }

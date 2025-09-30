@@ -1,9 +1,21 @@
-import { spawn } from 'node:child_process'
+import {spawn} from 'node:child_process'
 import { join } from 'node:path'
 import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core'
 import { pluginReact } from '@rsbuild/plugin-react'
-import { srcRenderPath } from '../common/paths'
+import { srcRenderPath} from '../common/paths'
 import CommonConfig from '../common/rsbuild.common'
+
+function run(cmd: string, args: string[]): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const proc = spawn(cmd, args, { shell: true, stdio: 'inherit' });
+        proc.on('close', (code) => {
+            if (code === 0) resolve();
+            else reject(new Error(`${cmd} ${args.join(' ')} failed with code ${code}`));
+        });
+        proc.on('error', reject);
+    });
+}
+
 
 const Config = defineConfig({
     plugins: [pluginReact()],
@@ -13,17 +25,12 @@ const Config = defineConfig({
         },
     },
     server: {
-        port: Number(process.env.PORT || 8088),
+        port: Number(process.env.PORT),
     },
     dev: {
         setupMiddlewares: [
-            middlewares => {
-                spawn('npm', ['run', 'dev:main'], {
-                    shell: true,
-                    stdio: 'inherit',
-                }).on('error', (spawnError: Error) => {
-                    console.error(`Main Server err:${spawnError}`)
-                })
+            async middlewares => {
+                await run('npm', ['run', 'dev:main']);
                 return middlewares
             },
         ],
